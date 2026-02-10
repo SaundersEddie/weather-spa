@@ -62,15 +62,76 @@ export default function WeatherPanel({ title, testId }: Props) {
 
   const [place, setPlace] = useState<string>('');
   const [forecast, setForecast] = useState<Forecast | null>(null);
+  const unitKey = 'weather-unit';
+  const [unit, setUnit] = useState<'C' | 'F'>(() =>
+    localStorage.getItem(unitKey) === 'F' ? 'F' : 'C',
+  );
+
+  const [coords, setCoords] = useState<{ lat: number; lon: number } | null>(
+    null,
+  );
 
   const disabled = status === 'loading';
 
   useEffect(() => {
-    if (zip && /^\d{5}$/.test(zip)) {
-      onSubmit({ preventDefault() {} } as React.FormEvent);
-    }
+    const savedZip = localStorage.getItem(storageKey) ?? '';
+
+    if (!savedZip || !/^\d{5}$/.test(savedZip)) return;
+
+    setZip(savedZip);
+
+    (async () => {
+      try {
+        setStatus('loading');
+
+        const results = await geocodeZip(savedZip);
+        if (!results.length) {
+          setStatus('error');
+          setErr('No results for that ZIP.');
+          return;
+        }
+
+        const best = results[0];
+        setPlace(formatPlace(best));
+        setCoords({ lat: best.latitude, lon: best.longitude });
+
+        const fc = await fetchForecast(best.latitude, best.longitude, unit);
+        setForecast(fc);
+        setStatus('ready');
+      } catch (ex) {
+        setStatus('error');
+        setErr(
+          ex instanceof Error
+            ? ex.message
+            : 'Something broke fetching weather.',
+        );
+      }
+    })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem(unitKey, unit);
+
+    if (!coords) return;
+
+    (async () => {
+      try {
+        setStatus('loading');
+        const fc = await fetchForecast(coords.lat, coords.lon, unit);
+        setForecast(fc);
+        setStatus('ready');
+      } catch (ex) {
+        setStatus('error');
+        setErr(
+          ex instanceof Error
+            ? ex.message
+            : 'Something broke fetching weather.',
+        );
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [unit, coords]);
 
   const next24 = useMemo(() => {
     const h = forecast?.hourly;
@@ -122,9 +183,10 @@ export default function WeatherPanel({ title, testId }: Props) {
       }
 
       const best = results[0];
+      setCoords({ lat: best.latitude, lon: best.longitude });
       setPlace(formatPlace(best));
 
-      const fc = await fetchForecast(best.latitude, best.longitude);
+      const fc = await fetchForecast(best.latitude, best.longitude, unit);
       setForecast(fc);
 
       setStatus('ready');
@@ -141,6 +203,28 @@ export default function WeatherPanel({ title, testId }: Props) {
   return (
     <section className='panel' data-testid={testId}>
       <div className='panel-header p-3'>
+        <div
+          className='btn-group btn-group-sm'
+          role='group'
+          aria-label='Temperature unit'
+        >
+          <button
+            type='button'
+            className={`btn ${unit === 'C' ? 'btn-light' : 'btn-outline-light'}`}
+            onClick={() => setUnit('C')}
+            disabled={status === 'loading'}
+          >
+            °C
+          </button>
+          <button
+            type='button'
+            className={`btn ${unit === 'F' ? 'btn-light' : 'btn-outline-light'}`}
+            onClick={() => setUnit('F')}
+            disabled={status === 'loading'}
+          >
+            °F
+          </button>
+        </div>
         <div className='d-flex align-items-center justify-content-between'>
           <div>
             <div className='fw-semibold'>{title}</div>
@@ -207,7 +291,7 @@ export default function WeatherPanel({ title, testId }: Props) {
                 </span>
               </div>
               <div className='muted small'>
-                Feels {Math.round(cur.apparent_temperature)}° • Wind{' '}
+                Feels {Math.round(cur.apparent_temperature)}°{unit} • Wind{' '}
                 {Math.round(cur.wind_speed_10m)} mph
               </div>
             </div>

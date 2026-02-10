@@ -15,7 +15,7 @@ export async function geocodeZip(zip: string) {
   url.searchParams.set('count', '5');
   url.searchParams.set('language', 'en');
   url.searchParams.set('format', 'json');
-  url.searchParams.set('countryCode', 'US'); // keep results sane
+  url.searchParams.set('countryCode', 'US');
 
   const res = await fetch(url);
   if (!res.ok) throw new Error('Geocoding failed');
@@ -46,11 +46,21 @@ export type Forecast = {
   timezone?: string;
 };
 
-export async function fetchForecast(lat: number, lon: number) {
+// export async function fetchForecast(lat: number, lon: number) {
+export async function fetchForecast(
+  lat: number,
+  lon: number,
+  unit: 'C' | 'F' = 'C',
+) {
   const url = new URL('https://api.open-meteo.com/v1/forecast');
   url.searchParams.set('latitude', String(lat));
   url.searchParams.set('longitude', String(lon));
   url.searchParams.set('timezone', 'auto');
+
+  if (unit === 'F') {
+    url.searchParams.set('temperature_unit', 'fahrenheit');
+    url.searchParams.set('wind_speed_unit', 'mph');
+  }
 
   url.searchParams.set(
     'current',

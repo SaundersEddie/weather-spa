@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import {
   fetchForecast,
   geocodeZip,
@@ -18,9 +18,7 @@ function formatPlace(g: GeoResult) {
   return `${g.name}${region}, ${g.country}`;
 }
 
-// Minimal, good-enough labels/icons (no extra files)
 function codeLabel(code: number) {
-  // Open-Meteo weather_code mapping (simplified buckets)
   if (code === 0) return 'Clear';
   if (code === 1) return 'Mostly clear';
   if (code === 2) return 'Partly cloudy';
@@ -57,7 +55,8 @@ function toLocalDow(iso: string) {
 }
 
 export default function WeatherPanel({ title, testId }: Props) {
-  const [zip, setZip] = useState('');
+  const storageKey = `weather-zip-${testId}`;
+  const [zip, setZip] = useState(() => localStorage.getItem(storageKey) ?? '');
   const [status, setStatus] = useState<Status>('idle');
   const [err, setErr] = useState<string | null>(null);
 
@@ -66,10 +65,16 @@ export default function WeatherPanel({ title, testId }: Props) {
 
   const disabled = status === 'loading';
 
+  useEffect(() => {
+    if (zip && /^\d{5}$/.test(zip)) {
+      onSubmit({ preventDefault() {} } as React.FormEvent);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const next24 = useMemo(() => {
     const h = forecast?.hourly;
     if (!h?.time?.length) return [];
-    // take first 24 hours from returned hourly arrays
     const n = Math.min(24, h.time.length);
     return Array.from({ length: n }, (_, i) => ({
       time: h.time[i],
@@ -96,6 +101,8 @@ export default function WeatherPanel({ title, testId }: Props) {
     setErr(null);
 
     const cleaned = zip.trim();
+    localStorage.setItem(storageKey, cleaned);
+
     if (!/^\d{5}$/.test(cleaned)) {
       setStatus('error');
       setErr('Enter a 5-digit ZIP.');
@@ -162,10 +169,13 @@ export default function WeatherPanel({ title, testId }: Props) {
               aria-label='ZIP'
             />
             <button
-              className='btn btn-outline-light'
+              className='btn btn-outline-light d-flex align-items-center gap-2'
               type='submit'
               disabled={disabled}
             >
+              {status === 'loading' && (
+                <span className='spinner-border spinner-border-sm' />
+              )}
               Get Weather
             </button>
           </div>
@@ -183,7 +193,11 @@ export default function WeatherPanel({ title, testId }: Props) {
           ) : null}
         </div>
 
-        {cur ? (
+        {status === 'loading' ? (
+          <div className='muted mt-2'>Loading forecast…</div>
+        ) : err ? (
+          <div className='text-warning small mt-2'>{err}</div>
+        ) : cur ? (
           <div className='mt-2 d-flex align-items-center justify-content-between'>
             <div>
               <div className='display-6 mb-0'>
@@ -200,7 +214,7 @@ export default function WeatherPanel({ title, testId }: Props) {
             <div style={{ fontSize: 44 }}>{codeIcon(cur.weather_code)}</div>
           </div>
         ) : (
-          <div className='muted mt-2'>No data yet.</div>
+          <div className='muted mt-2'>Enter a ZIP and hit “Get Weather”.</div>
         )}
 
         <hr className='border-opacity-25 my-3' />

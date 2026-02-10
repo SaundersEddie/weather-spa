@@ -177,8 +177,8 @@ export default function WeatherPanel({ title, testId }: Props) {
       if (!results.length) {
         setStatus('error');
         setErr('No results for that ZIP.');
-        setForecast(null);
-        setPlace('');
+        // setForecast(null);
+        // setPlace('');
         return;
       }
 

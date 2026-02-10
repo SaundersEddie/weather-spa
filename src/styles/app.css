@@ -1,0 +1,54 @@
+:root {
+  --bg0: #0b1020;
+  --bg1: #0f1a3a;
+  --card: #0f172a;
+  --card2: #111c33;
+  --border: rgba(255, 255, 255, 0.08);
+  --text: #e5e7eb;
+  --muted: rgba(229, 231, 235, 0.65);
+}
+
+body {
+  background: radial-gradient(1200px 600px at 20% 0%, var(--bg1), var(--bg0));
+  color: var(--text);
+}
+
+.app-shell {
+  min-height: 100vh;
+}
+
+.panel {
+  background: linear-gradient(180deg, var(--card2), var(--card));
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+}
+
+.panel-header {
+  border-bottom: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.hourly-row {
+  display: flex;
+  gap: 0.75rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+}
+
+.hour-card {
+  min-width: 110px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 0.75rem;
+}
+
+.day-row {
+  border-top: 1px solid var(--border);
+}

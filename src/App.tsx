@@ -1,35 +1,30 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import './App.css';
 
-function App() {
-  const [count, setCount] = useState(0)
-
+export default function App() {
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <div className='app-shell'>
+      <div className='container py-4'>
+        <div className='d-flex align-items-end justify-content-between mb-3'>
+          <div>
+            <h1 className='h3 mb-1'>Weather Compare</h1>
+            <div className='muted'>
+              Home vs destination — because plans change.
+            </div>
+          </div>
+          <div className='muted small'>Open-Meteo • no keys</div>
+        </div>
 
-export default App
+        <div className='row g-3'>
+          <div className='col-12 col-lg-6'>
+            {/* <WeatherPanel title="Home" /> */}
+            <div className='panel p-3'>Home panel placeholder</div>
+          </div>
+          <div className='col-12 col-lg-6'>
+            {/* <WeatherPanel title="Destination" /> */}
+            <div className='panel p-3'>Destination panel placeholder</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

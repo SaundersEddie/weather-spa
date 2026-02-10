@@ -25,9 +25,8 @@ test('shows not found state for unknown ZIP', async () => {
   await user.type(screen.getByLabelText('ZIP'), '00000');
   await user.click(screen.getByRole('button', { name: /get weather/i }));
 
-  expect(
-    await screen.findByText(/No results for that ZIP/i),
-  ).toBeInTheDocument();
+  const alert = await screen.findByRole('alert');
+  expect(alert).toHaveTextContent(/No results for that ZIP/i);
 });
 
 test('validates ZIP format', async () => {
@@ -37,5 +36,8 @@ test('validates ZIP format', async () => {
   await user.type(screen.getByLabelText('ZIP'), 'abc');
   await user.click(screen.getByRole('button', { name: /get weather/i }));
 
-  expect(await screen.findByText(/Enter a 5-digit ZIP/i)).toBeInTheDocument();
+  const panel = screen.getByTestId('panel-home');
+  const alert = await screen.findByRole('alert');
+  expect(alert).toHaveTextContent(/5-digit ZIP/i);
+  expect(panel).toContainElement(alert);
 });

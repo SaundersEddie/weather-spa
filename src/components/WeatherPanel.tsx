@@ -263,7 +263,13 @@ export default function WeatherPanel({ title, testId }: Props) {
               Get Weather
             </button>
           </div>
-          {err ? <div className='text-warning small mt-2'>{err}</div> : null}
+          {/* {err ? <div className='text-warning small mt-2'>{err}</div> : null}*/}
+
+          {err ? (
+            <div className='text-warning small mt-2' role='alert'>
+              {err}
+            </div>
+          ) : null}
         </form>
       </div>
 

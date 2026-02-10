@@ -9,7 +9,7 @@ test('two panels can fetch weather independently', async ({ page }) => {
     .getByTestId('panel-home')
     .getByRole('button', { name: 'Get Weather' })
     .click();
-  await expect(page.getByTestId('panel-home')).toContainText('Mock City');
+  await expect(page.getByTestId('panel-home')).toContainText('New York');
 
   // Destination panel
   await page.getByTestId('panel-destination').getByLabel('ZIP').fill('90210');
@@ -18,6 +18,6 @@ test('two panels can fetch weather independently', async ({ page }) => {
     .getByRole('button', { name: 'Get Weather' })
     .click();
   await expect(page.getByTestId('panel-destination')).toContainText(
-    'Mock City',
+    'Beverly Hills',
   );
 });

@@ -48,4 +48,4 @@ This project intentionally favors clarity and maintainability over over-engineer
 
 ## License
 
-MIT
+Open Source
